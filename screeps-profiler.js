@@ -39,7 +39,9 @@ function setupProfiler() {
       }
     },
     reset: resetMemory,
+    resetSingle: Profiler.resetSingle,
     output: Profiler.output,
+    outputSingle: Profiler.outputSingle,
   };
 
   overloadCPUCalc();
@@ -220,6 +222,34 @@ const Profiler = {
     }
     lines.push(footer);
     return lines.join('\n');
+  },
+
+  outputSingle(functionname) {
+    if (!Memory.profiler || !Memory.profiler.enabledTick) {
+      return 'Profiler not active.';
+    }
+
+    if (!Memory.profiler || !Memory.profiler.map || !Memory.profiler.map[functionname]) {
+      return 'Function does not exist.';
+    }
+
+    const header = 'calls\t\ttime\t\tavg\t\tfunction';
+    const data = Memory.profiler.map[functionname];
+    const line = [
+      data.calls,
+      data.time.toFixed(1),
+      (data.time / data.calls).toFixed(3),
+      functionname,
+    ].join('\t\t');
+    return [header, line].join('\n');
+  },
+
+  resetSingle(functionname) {
+    if (!Memory.profiler || !Memory.profiler.map || !Memory.profiler.map[functionname]) {
+      return 'Function does not exist.';
+    }
+    delete Memory.profiler.map[functionname];
+    return true;
   },
 
   lines() {
